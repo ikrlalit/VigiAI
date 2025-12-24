@@ -117,4 +117,50 @@ def AlertsList_f(request):
             'message': 'Exception Occurred',
         }
         return Response(json_data, status= status.HTTP_400_BAD_REQUEST)
+    
+@api_view(['POST'])
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
+def AlertStatusUpdate_f(request):
+    try:
+        serializer = AlertStatusUpdate_s(data=request.data)
+        if serializer.is_valid():
+            alert_id = serializer.data.get('alert_id')
+            alert_status = serializer.data.get('alert_status')
+
+            data = AlertStatusUpdate_q(alert_id, alert_status)
+            if data:
+                json_data= {
+                    'status_code' : 200,
+                    'status': 'SUCCESS',
+                    'data': data,
+                    'message': 'Data Updated Successfully',
+                }
+                return Response(json_data, status= status.HTTP_200_OK)
+            else:
+                json_data = {
+                    'status_code' : 200,
+                    'status': 'SUCCESS',
+                    'data': [],
+                    'message': 'Data Not Updated',
+                }
+                return Response(json_data, status= status.HTTP_200_OK)
+            
+        else:
+            json_data = {
+                'status_code': 300,
+                'status': 'Failed',
+                'data': serializer.errors,
+                'message': 'Invalid Input Data',
+            }
+            return Response(json_data, status=status.HTTP_300_MULTIPLE_CHOICES)
+
+    except Exception as e:
+        json_data = {
+            'status_code' : 400,
+            'status': 'Failed',
+            'data': str(e),
+            'message': 'Exception Occurred',
+        }
+        return Response(json_data, status= status.HTTP_400_BAD_REQUEST)
 

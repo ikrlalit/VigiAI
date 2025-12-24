@@ -14,3 +14,10 @@ class AlertsList_s(serializers.Serializer):
 
     class Meta:
         fields='__all__'
+class AlertStatusUpdate_s(serializers.Serializer):
+    alert_id = serializers.IntegerField(required=True)
+    alert_status = serializers.CharField(required=False,allow_blank=True, default=None)
+
+
+    class Meta:
+        fields='__all__'

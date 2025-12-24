@@ -58,3 +58,13 @@ def AlertsList_q():
         columns = [col[0] for col in cursor.description]
         alerts = [dict(zip(columns, row)) for row in rows]
     return alerts
+
+def AlertStatusUpdate_q(alert_id, alert_status):
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            UPDATE alerts
+            SET status = %s
+            WHERE id = %s
+        """, (alert_status, alert_id))
+        affected_rows = cursor.rowcount
+    return affected_rows
