@@ -9,3 +9,52 @@ def AddEvent_q(data):
 
     event_id = cursor.lastrowid
     return event_id
+
+
+
+def AlertsListByEventSeverityAndAlertStatus_q(event_severity, alert_status):
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT a.id,a.status,a.created_at,a.event_id,e.source_name,
+                       e.event_type,e.severity,e.description FROM alerts a left join events e on a.event_id=e.id
+            WHERE e.severity = %s AND a.status = %s  ORDER BY a.id DESC""",(event_severity, alert_status,))
+        rows = cursor.fetchall()
+
+        columns = [col[0] for col in cursor.description]
+        alerts = [dict(zip(columns, row)) for row in rows]
+    return alerts
+
+def AlertsListByEventSeverity_q(event_severity):
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT a.id,a.status,a.created_at,a.event_id,e.source_name,
+                       e.event_type,e.severity,e.description FROM alerts a left join events e on a.event_id=e.id
+            WHERE e.severity = %s ORDER BY a.id DESC""",(event_severity,))
+        rows = cursor.fetchall()
+
+        columns = [col[0] for col in cursor.description]
+        alerts = [dict(zip(columns, row)) for row in rows]
+    return alerts
+
+def AlertsListByAlertStatus_q(alert_status):
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT a.id,a.status,a.created_at,a.event_id,e.source_name,
+                       e.event_type,e.severity,e.description FROM alerts a left join events e on a.event_id=e.id
+            WHERE a.status = %s ORDER BY a.id DESC""",(alert_status,))
+        rows = cursor.fetchall()
+
+        columns = [col[0] for col in cursor.description]
+        alerts = [dict(zip(columns, row)) for row in rows]
+    return alerts
+
+def AlertsList_q():
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT a.id,a.status,a.created_at,a.event_id,e.source_name,
+                       e.event_type,e.severity,e.description FROM alerts a left join events e on a.event_id=e.id ORDER BY a.id DESC""")
+        rows = cursor.fetchall()
+
+        columns = [col[0] for col in cursor.description]
+        alerts = [dict(zip(columns, row)) for row in rows]
+    return alerts

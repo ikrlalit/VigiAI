@@ -6,7 +6,8 @@ from rest_framework import status
 from apis.serializers import *
 from apis.queries import *
 
-# Threat/Event Ingestion API
+##   Threat/Event Ingestion API  ##
+
 @api_view(['POST'])
 @authentication_classes((TokenAuthentication,))
 @permission_classes((IsAuthenticated,))
@@ -64,4 +65,56 @@ def AddEvent_f(request):
         return Response(json_data, status= status.HTTP_400_BAD_REQUEST)
 
 
+@api_view(['POST'])
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
+def AlertsList_f(request):
+    try:
+        serializer = AlertsList_s(data=request.data)
+        if serializer.is_valid():
+            event_severity = serializer.data.get('event_severity')
+            alert_status = serializer.data.get('alert_status')
+
+            if event_severity and alert_status:
+                data = AlertsListByEventSeverityAndAlertStatus_q(event_severity, alert_status) 
+            elif event_severity:
+                data = AlertsListByEventSeverity_q(event_severity)
+            elif alert_status:
+                data = AlertsListByAlertStatus_q(alert_status)
+            else:
+                data = AlertsList_q()
+            if data:
+                json_data= {
+                    'status_code' : 200,
+                    'status': 'SUCCESS',
+                    'data': data,
+                    'message': 'Data Found Successfully',
+                }
+                return Response(json_data, status= status.HTTP_200_OK)
+            else:
+                json_data = {
+                    'status_code' : 200,
+                    'status': 'SUCCESS',
+                    'data': [],
+                    'message': 'Data Not Found',
+                }
+                return Response(json_data, status= status.HTTP_200_OK)
+            
+        else:
+            json_data = {
+                'status_code': 300,
+                'status': 'Failed',
+                'data': serializer.errors,
+                'message': 'Invalid input data',
+            }
+            return Response(json_data, status=status.HTTP_300_MULTIPLE_CHOICES)
+
+    except Exception as e:
+        json_data = {
+            'status_code' : 400,
+            'status': 'Fail',
+            'data': e,
+            'message': 'Exception Occure',
+        }
+        return Response(json_data, status= status.HTTP_400_BAD_REQUEST)
 
