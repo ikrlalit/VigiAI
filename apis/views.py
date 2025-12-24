@@ -112,9 +112,9 @@ def AlertsList_f(request):
     except Exception as e:
         json_data = {
             'status_code' : 400,
-            'status': 'Fail',
-            'data': e,
-            'message': 'Exception Occure',
+            'status': 'Failed',
+            'data': str(e),
+            'message': 'Exception Occurred',
         }
         return Response(json_data, status= status.HTTP_400_BAD_REQUEST)
 
