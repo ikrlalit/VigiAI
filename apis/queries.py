@@ -7,8 +7,43 @@ def AddEvent_q(data):
             VALUES (%s, %s, %s, %s)
         """, (data['source_name'], data['event_type'], data['severity'], data['description']))
 
+        event_id = cursor.lastrowid
+
+        if data["severity"] in ("High", "Critical"):
+            cursor.execute("""
+                INSERT INTO alerts (event_id, status)
+                VALUES (%s, 'Open')
+            """, (event_id,))
+    return event_id
+
+def AddNewUser_q(data):
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            INSERT INTO users (username, password_hash, role)
+            VALUES (%s, %s, %s)
+        """, (data['username'], data['password'], data['role']))
+
     event_id = cursor.lastrowid
     return event_id
+
+def CheckUser_q(username):
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT id, username, password_hash, role, created_at FROM users WHERE username = %s
+        """, (username,))
+        row = cursor.fetchone()
+
+        if row:
+            user = {
+                'id': row[0],
+                'username': row[1],
+                'password_hash': row[2],
+                'role': row[3],
+                'created_at': row[4],
+            }
+            return type('User', (object,), user)  # Create a simple User object
+        else:
+            return None
 
 
 
@@ -60,11 +95,15 @@ def AlertsList_q():
     return alerts
 
 def AlertStatusUpdate_q(alert_id, alert_status):
-    with connection.cursor() as cursor:
-        cursor.execute("""
-            UPDATE alerts
-            SET status = %s
-            WHERE id = %s
-        """, (alert_status, alert_id))
-        affected_rows = cursor.rowcount
-    return affected_rows
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                UPDATE alerts
+                SET status = %s
+                WHERE id = %s
+            """, (alert_status, alert_id))
+            affected_rows = cursor.rowcount
+        return affected_rows
+    except Exception as e:
+        print(f"Error updating alert status: {e}")
+        return 0
