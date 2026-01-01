@@ -1,4 +1,5 @@
-# VigiAI – Backend Alert & Event Management System (Cyethack Solutions Assignment)
+# VigiAI – AI-powered surveillance and threat
+detection backend application 
 
 ## 📌 Project Overview
 VigiAI is a backend system designed to ingest security/threat events, automatically generate alerts for critical incidents, and manage alerts using role-based access control (RBAC).
